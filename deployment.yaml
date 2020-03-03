@@ -16,6 +16,8 @@ spec:
         runAsUser: 0
       containers:
         - name: jenkins
+          command: ["/bin/bash"]
+          args: ["/opt/start.sh"]
           image: jenkins/jenkins
           env:
             - name: JAVA_OPTS
@@ -28,7 +30,25 @@ spec:
           volumeMounts:
             - name: jenkins-home
               mountPath: /var/jenkins_home
+            - name: start-script
+              mountPath: /opt/start.sh
+              subPath: start.sh
+            # - name: jenkins-config
+            #   mountPath: /var/jenkins_home/config.xml
+            #   subPath: config.xml
+            - name: tomcat-job
+              mountPath: /var/jenkins_home/jobs/mytomcat/config.xml
+              subPath: config.xml
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
             claimName: jenkins-data
+        - name: start-script
+          configMap:
+            name: jenkins-start
+        # - name: jenkins-config
+        #   configMap:
+        #     name: jenkins-config
+        - name: tomcat-job
+          configMap:
+            name: jenkins-job
