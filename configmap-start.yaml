@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: jenkins-start
-data:
-  start.sh: |
-    /usr/local/bin/install-plugins.sh workflow-aggregator
-    /usr/local/bin/install-plugins.sh git
-    /usr/local/bin/jenkins.sh

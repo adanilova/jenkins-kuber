@@ -12,12 +12,12 @@ spec:
         app: jenkins
     spec:
       securityContext:
-        fsGroup: 1000 
+        fsGroup: 1000
         runAsUser: 0
       containers:
         - name: jenkins
           command: ["/bin/bash"]
-          args: ["/opt/start.sh"]
+          args: ["/opt/jenkins-config/start.sh"]
           image: jenkins/jenkins
           env:
             - name: JAVA_OPTS
@@ -28,27 +28,18 @@ spec:
             - name: jenkins-http
               containerPort: 8085
           volumeMounts:
-            - name: jenkins-home
-              mountPath: /var/jenkins_home
-            - name: start-script
-              mountPath: /opt/start.sh
-              subPath: start.sh
-            # - name: jenkins-config
-            #   mountPath: /var/jenkins_home/config.xml
-            #   subPath: config.xml
-            - name: tomcat-job
-              mountPath: /var/jenkins_home/jobs/mytomcat/config.xml
-              subPath: config.xml
+            - name: jenkins-config
+              mountPath: /opt/jenkins-config
+            - name: dockersocket
+              mountPath: /var/run/docker.sock
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
             claimName: jenkins-data
-        - name: start-script
+        - name: jenkins-config
           configMap:
-            name: jenkins-start
-        # - name: jenkins-config
-        #   configMap:
-        #     name: jenkins-config
-        - name: tomcat-job
-          configMap:
-            name: jenkins-job
+            name: jenkins-config
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+            type: ""
