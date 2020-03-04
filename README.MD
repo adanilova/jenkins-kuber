@@ -8,5 +8,6 @@ or inside repo directory
 ```
 kubectl create -f pvc.yaml
 kubectl create -f svc.yaml
+kubectl create -f configmap.yaml
 kubectl create -f deployment.yaml
 ```
