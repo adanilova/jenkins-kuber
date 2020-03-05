@@ -14,11 +14,28 @@ spec:
       securityContext:
         fsGroup: 1000
         runAsUser: 0
+      initContainers:
+        - name: init-jenkins
+          image: chloeraven/jenkins:1.0
+          command:
+            [
+              "sh",
+              "-c",
+              " mkdir -p $JOB_DEST; cp $JOB_SRC $JOB_DEST/config.xml; chown jenkins $JOB_DEST/config.xml"
+            ]
+          env:
+            - name: JOB_SRC
+              value: /volumes/job/config.xml
+            - name: JOB_DEST
+              value: /volumes/jenkins_home/jobs/mytomcat
+          volumeMounts:
+            - name: jenkins-home
+              mountPath: /volumes/jenkins_home
+            - name: jenkins-job-config
+              mountPath: /volumes/job
       containers:
         - name: jenkins
-          command: ["/bin/bash"]
-          args: ["/opt/jenkins-config/start.sh"]
-          image: jenkins/jenkins
+          image: chloeraven/jenkins:1.0
           env:
             - name: JAVA_OPTS
               value: -Djenkins.install.runSetupWizard=false
@@ -28,17 +45,17 @@ spec:
             - name: jenkins-http
               containerPort: 8085
           volumeMounts:
-            - name: jenkins-config
-              mountPath: /opt/jenkins-config
+            - name: jenkins-home
+              mountPath: /var/jenkins_home
             - name: dockersocket
               mountPath: /var/run/docker.sock
       volumes:
         - name: jenkins-home
           persistentVolumeClaim:
             claimName: jenkins-data
-        - name: jenkins-config
+        - name: jenkins-job-config
           configMap:
-            name: jenkins-config
+            name: jenkins-job-config
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
